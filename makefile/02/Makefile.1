@@ -1,0 +1,22 @@
+# 注释: 这是第一个版本的Makefile 2014-11-06 V0.0.1
+
+#make命令在解释Makefile的时候，会从第一条规则开始
+#make命令默认会在当前目录中查找Makefile-->makefile-->MAKEFILE
+#make -f makefile.debug
+
+test : lib_a.o  lib_b.o main.o
+	gcc lib_a.o lib_b.o main.o -o test
+
+lib_a.o : lib_a.c
+	gcc -c lib_a.c
+
+lib_b.o : lib_b.c
+	gcc -c lib_b.c
+
+main.o : main.c
+	gcc -c main.c
+#伪目标：不是为了得到一个目标文件，而是为了某一个最终的结果或者行为
+.PHONY: clean
+
+clean: 
+	rm *.o test 

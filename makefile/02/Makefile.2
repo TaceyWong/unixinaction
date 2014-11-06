@@ -1,0 +1,71 @@
+#版本2： 引入变量   V0.0.2
+SRCS = lib_a.c lib_b.c main.c
+DEST = test
+
+#赋值运算符
+#1. =   递归赋值 
+#2. :=  立即赋值
+#3. +=  叠加赋值
+#4. ?=  判断赋值
+
+###
+# 使用赋值运算符
+FOO = $(BAR)
+FOO2 := $(BAR)
+BAR := main.c
+BAR := test.c
+CC ?= gcc
+#?= 先判断变量是否有值，如果没有则赋值，有则保留
+
+all : test
+
+
+demo :
+	#echo \$\(FOO\) 
+	echo $(FOO)
+	#echo \$\(FOO2\)
+	echo $(FOO2)
+	#echo \$(BAR)
+	echo $(BAR)
+	#echo $(CC)
+
+demo2 :
+	#修改变量值的后缀
+	@echo $(SRCS:%.c=%.o)
+	#增加后缀, @关闭命令语句的回显
+	@echo $(SRCS:=.bak)
+	#删除后缀
+	@echo $(SRCS:.c=)
+	#'-' 忽略掉语句导致的错误，继续向下执行
+	-@rm 1.txt
+	$(RM) 1.txt
+	@echo "demo2 Done"
+
+#特殊的变量
+# $@: 目标明
+# $<: 首要条件名
+# $^: 条件列表
+# $?: 时间戳新于目标的条件列表
+
+
+test : $(SRCS:%.c=%.o)
+	echo '$$@' $@
+	
+	gcc lib_a.o lib_b.o main.o -o test
+
+%.o : %.c
+	$(CC) -c $< 
+
+#lib_a.o : lib_a.c
+#	gcc -c lib_a.c
+
+#lib_b.o : lib_b.c
+#	gcc -c lib_b.c
+
+#main.o : main.c
+#	gcc -c main.c
+#伪目标：不是为了得到一个目标文件，而是为了某一个最终的结果或者行为
+.PHONY: clean
+
+clean: 
+	rm *.o test 
