@@ -1,17 +1,19 @@
 /* J. David's webserver */
-/* This is a simple webserver.
- * Created November 1999 by J. David Blackstone.
- * CSE 4344 (Network concepts), Prof. Zeigler
- * University of Texas at Arlington
+/* 这是一个简单的web服务器
+ * J. David Blackstone于1999年9月
+ *上德州阿灵顿大学zeigler教授的CSE 4344(网络概念)课程时编写
  */
-/* This program compiles for Sparc Solaris 2.6.
- * To compile for Linux:
- *  1) Comment out the #include <pthread.h> line.
- *  2) Comment out the line that defines the variable newthread.
- *  3) Comment out the two lines that run pthread_create().
- *  4) Uncomment the line that runs accept_request().
- *  5) Remove -lsocket from the Makefile.
+
+/* 本程序编译使用的操作系统是Sparc Solaris 2.6.
+ * 要在linux平台编译:
+ *  1) 注释掉#include <pthread.h> 这一行.
+ *  2) 注释掉定义newthread的那一行.
+ *  3) 注释掉运行pthread_create()的那两行.
+ *  4) 将运行accept_request()的注释去掉.
+ *  5) 从Makefile中移除-lsocket.
  */
+
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -43,11 +45,16 @@ void serve_file(int, const char *);
 int startup(u_short *);
 void unimplemented(int);
 
+
 /**********************************************************************/
-/* A request has caused a call to accept() on the server port to
- * return.  Process the request appropriately.
- * Parameters: the socket connected to the client */
+/* 一个请求导致对服务器端口的accept()调用返回相应的数据.  Process the request appropriately.
+ * 参数: 与client相连的socket */
 /**********************************************************************/
+
+
+
+
+
 void accept_request(int client)
 {
  char buf[1024];
@@ -57,8 +64,8 @@ void accept_request(int client)
  char path[512];
  size_t i, j;
  struct stat st;
- int cgi = 0;      /* becomes true if server decides this is a CGI
-                    * program */
+ int cgi = 0;      // 如果服务器识别出这事一个CGI程序，cgi变为ture
+                    
  char *query_string = NULL;
 
  numchars = get_line(client, buf, sizeof(buf));
@@ -106,7 +113,7 @@ void accept_request(int client)
  if (path[strlen(path) - 1] == '/')
   strcat(path, "index.html");
  if (stat(path, &st) == -1) {
-  while ((numchars > 0) && strcmp("\n", buf))  /* read & discard headers */
+  while ((numchars > 0) && strcmp("\n", buf))  /* 读或丢弃 headers */
    numchars = get_line(client, buf, sizeof(buf));
   not_found(client);
  }
@@ -128,8 +135,8 @@ void accept_request(int client)
 }
 
 /**********************************************************************/
-/* Inform the client that a request it has made has a problem.
- * Parameters: client socket */
+/* 告知客户端其发出的请求有错误
+ * 参数: client socket */
 /**********************************************************************/
 void bad_request(int client)
 {
@@ -148,11 +155,10 @@ void bad_request(int client)
 }
 
 /**********************************************************************/
-/* Put the entire contents of a file out on a socket.  This function
- * is named after the UNIX "cat" command, because it might have been
- * easier just to do something like pipe, fork, and exec("cat").
- * Parameters: the client socket descriptor
- *             FILE pointer for the file to cat */
+/*通过socket将一个文件的全部内容发出. 
+ *函数名模仿自UNIX系统的cat程序
+ * 参数: 客户端socket描述符
+ *             用于回显的文件的文件指针 */
 /**********************************************************************/
 void cat(int client, FILE *resource)
 {
@@ -167,8 +173,8 @@ void cat(int client, FILE *resource)
 }
 
 /**********************************************************************/
-/* Inform the client that a CGI script could not be executed.
- * Parameter: the client socket descriptor. */
+/* 告知客户端一个CGI不能运行.
+ * 参数: 客户端socket描述符. */
 /**********************************************************************/
 void cannot_execute(int client)
 {
@@ -185,9 +191,9 @@ void cannot_execute(int client)
 }
 
 /**********************************************************************/
-/* Print out an error message with perror() (for system errors; based
- * on value of errno, which indicates system call errors) and exit the
- * program indicating an error. */
+/* 通过 perror() 打印一条错误信息(针对系统错误; 
+ * 基于系统错误编号
+ * 退出程序，返回系统错误编号 */
 /**********************************************************************/
 void error_die(const char *sc)
 {
@@ -196,10 +202,10 @@ void error_die(const char *sc)
 }
 
 /**********************************************************************/
-/* Execute a CGI script.  Will need to set environment variables as
+/*执行一个CGI脚本.  Will need to set environment variables as
  * appropriate.
- * Parameters: client socket descriptor
- *             path to the CGI script */
+ * 参数: 客户端socket描述符
+ *             CGI脚本路径*/
 /**********************************************************************/
 void execute_cgi(int client, const char *path,
                  const char *method, const char *query_string)
@@ -297,10 +303,10 @@ void execute_cgi(int client, const char *path,
  * the above three line terminators is read, the last character of the
  * string will be a linefeed and the string will be terminated with a
  * null character.
- * Parameters: the socket descriptor
- *             the buffer to save the data in
- *             the size of the buffer
- * Returns: the number of bytes stored (excluding null) */
+ * 参数: socket 描述符
+ *             保存数据的缓冲区
+ *             缓冲区容量大小
+ * 返回: 已存储的字节数 (除了 null) */
 /**********************************************************************/
 int get_line(int sock, char *buf, int size)
 {
@@ -335,14 +341,14 @@ int get_line(int sock, char *buf, int size)
 }
 
 /**********************************************************************/
-/* Return the informational HTTP headers about a file. */
-/* Parameters: the socket to print the headers on
- *             the name of the file */
+/* 返回一个文件的HTTP信息头. */
+/* 参数: socket描述符
+ *             文件名 */
 /**********************************************************************/
 void headers(int client, const char *filename)
 {
  char buf[1024];
- (void)filename;  /* could use filename to determine file type */
+ (void)filename;  /* 可以使用文件名判定文件类型 */
 
  strcpy(buf, "HTTP/1.0 200 OK\r\n");
  send(client, buf, strlen(buf), 0);
@@ -355,7 +361,7 @@ void headers(int client, const char *filename)
 }
 
 /**********************************************************************/
-/* Give a client a 404 not found status message. */
+/* 给客户端一个404 not found 信息. */
 /**********************************************************************/
 void not_found(int client)
 {
@@ -384,7 +390,7 @@ void not_found(int client)
 /**********************************************************************/
 /* Send a regular file to the client.  Use headers, and report
  * errors to client if they occur.
- * Parameters: a pointer to a file structure produced from the socket
+ * 参数: a pointer to a file structure produced from the socket
  *              file descriptor
  *             the name of the file to serve */
 /**********************************************************************/
@@ -410,12 +416,10 @@ void serve_file(int client, const char *filename)
 }
 
 /**********************************************************************/
-/* This function starts the process of listening for web connections
- * on a specified port.  If the port is 0, then dynamically allocate a
- * port and modify the original port variable to reflect the actual
- * port.
- * Parameters: pointer to variable containing the port to connect on
- * Returns: the socket */
+/* 这个函数在一个指定的端口开启监听web链接的进程
+ * 如果端口号为0, 就动态的分配一个端口，并将原来的端口映射为当前端口
+ * 参数: pointer to variable containing the port to connect on
+ * 返回: the socket */
 /**********************************************************************/
 int startup(u_short *port)
 {
@@ -444,9 +448,8 @@ int startup(u_short *port)
 }
 
 /**********************************************************************/
-/* Inform the client that the requested web method has not been
- * implemented.
- * Parameter: the client socket */
+/* 告知客户端请求网页的方法还未实现
+ * 参数: the client socket */
 /**********************************************************************/
 void unimplemented(int client)
 {
